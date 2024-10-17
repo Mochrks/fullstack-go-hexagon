@@ -7,7 +7,7 @@ import (
 
     "go.mongodb.org/mongo-driver/mongo"
     "go.mongodb.org/mongo-driver/mongo/options"
-    "go-hexagon/infrastructure/models" 
+    "go-hexagon/domain" 
 )
 
 var MongoClient *mongo.Client
@@ -38,7 +38,7 @@ func InitializeMongoDB(uri string, dbName string) error {
 }
 
 // save speed execution
-func SaveExecutionLog(client *mongo.Client, log models.ExecutionLog) error {
+func SaveExecutionLog(client *mongo.Client, log domain.ExecutionLog) error {
     collection := client.Database("db_products_go").Collection("execution_logs") 
     _, err := collection.InsertOne(context.Background(), log)
     return err

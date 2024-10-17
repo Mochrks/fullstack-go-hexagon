@@ -5,6 +5,7 @@ import (
     "go-hexagon/config"
     "go-hexagon/infrastructure/db"
     "go-hexagon/infrastructure/http"
+    "go-hexagon/infrastructure/routes"
     "go-hexagon/infrastructure/repository"
     "go-hexagon/infrastructure/middleware"
     "github.com/gin-gonic/gin"
@@ -51,7 +52,7 @@ func main() {
     r.GET("/execution-logs", executionLogHandler.GetAllExecutionLogs)
 
     // Register product routes with mongoClient
-    http.RegisterProductRoutes(r, productService, mongoClient)
+    routes.RegisterProductRoutes(r, productService, mongoClient)
 
     // Setup CORS middleware
     config := cors.Config{

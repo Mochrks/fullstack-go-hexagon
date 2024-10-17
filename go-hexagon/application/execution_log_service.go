@@ -1,7 +1,7 @@
 package application
 
 import (
-    "go-hexagon/infrastructure/models"
+    "go-hexagon/domain"
     "go-hexagon/infrastructure/repository"
 )
 
@@ -16,6 +16,6 @@ func NewExecutionLogService(repo *repository.ExecutionLogRepository) *ExecutionL
 }
 
 // get all data in mongodb
-func (s *ExecutionLogService) GetAll() ([]models.ExecutionLog, error) {
+func (s *ExecutionLogService) GetAll() ([]domain.ExecutionLog, error) {
     return s.repository.GetAll()
 }

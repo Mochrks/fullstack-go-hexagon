@@ -1,7 +1,8 @@
-package http
+package routes
 
 import (
     "go-hexagon/infrastructure/middleware"
+    "go-hexagon/infrastructure/http"
     "go-hexagon/application"
     "github.com/gin-gonic/gin"
     "go.mongodb.org/mongo-driver/mongo" 
@@ -9,7 +10,7 @@ import (
 
 // RegisterProductRoutes
 func RegisterProductRoutes(r *gin.Engine, service *application.ProductService, mongoClient *mongo.Client) {
-    handler := NewProductHandler(service)
+    handler := http.NewProductHandler(service)
 
     // Apply LoggingMiddleware with mongoClient
     r.Use(middleware.LoggingMiddleware(mongoClient))
