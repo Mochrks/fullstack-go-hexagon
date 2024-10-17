@@ -14,13 +14,12 @@ type ProductHandler struct {
     service *application.ProductService
 }
 
-// NewProductHandler creates a new instance of ProductHandler.
 func NewProductHandler(service *application.ProductService) *ProductHandler {
     return &ProductHandler{service: service}
 }
 
 
-// GetAllProducts retrieves all products.
+// GetAllProducts
 func (h *ProductHandler) GetAllProducts(c *gin.Context) {
     products, err := h.service.GetAll() 
     if err != nil {
@@ -34,7 +33,7 @@ func (h *ProductHandler) GetAllProducts(c *gin.Context) {
 }
 
 
-// CreateProduct creates a new product.
+// CreateProduct 
 func (h *ProductHandler) CreateProduct(c *gin.Context) {
     var product domain.Product
     if err := c.ShouldBindJSON(&product); err != nil {
@@ -60,7 +59,7 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 }
 
 
-// GetProduct retrieves a product by its ID.
+// GetProduct 
 func (h *ProductHandler) GetProduct(c *gin.Context) {
     id := c.Param("id")
     intID, err := strconv.Atoi(id) // Convert string id to int
@@ -81,7 +80,7 @@ func (h *ProductHandler) GetProduct(c *gin.Context) {
     c.JSON(http.StatusOK, response)
 }
 
-// UpdateProduct updates a product by its ID.
+// UpdateProduct 
 func (h *ProductHandler) UpdateProduct(c *gin.Context) {
     id := c.Param("id")
     intID, err := strconv.Atoi(id)
@@ -116,6 +115,8 @@ func (h *ProductHandler) UpdateProduct(c *gin.Context) {
 }
 
 
+
+// Delete products
 func (h *ProductHandler) DeleteProduct(c *gin.Context) {
     id := c.Param("id")
     intID, err := strconv.Atoi(id) // Convert string id to int

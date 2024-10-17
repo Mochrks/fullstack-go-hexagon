@@ -9,20 +9,37 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { jsPDF } from "jspdf"
 import autoTable from 'jspdf-autotable'
 import { Search, FileDown, Settings } from 'lucide-react'
+import { formatTimestamp } from '@/utils/format-date'
 
 interface FunctionData {
     id: number
-    name: string
-    speed: string
-    category: string
+    path: string
+    duration: number
+    timestamp: string
 }
 
+
 const initialData: FunctionData[] = [
-    { id: 1, name: "quickSort", speed: "O(n log n)", category: "Sorting" },
-    { id: 2, name: "bubbleSort", speed: "O(n^2)", category: "Sorting" },
-    { id: 3, name: "binarySearch", speed: "O(log n)", category: "Searching" },
-    { id: 4, name: "depthFirstSearch", speed: "O(V + E)", category: "Graph" },
-    { id: 5, name: "breadthFirstSearch", speed: "O(V + E)", category: "Graph" },
+    {
+        id: 1, path: "/products", duration: 0.5078,
+        timestamp: "2024-10-16T14:45:57.507+00:00"
+    },
+    {
+        id: 2, path: "/products", duration: 0.6078,
+        timestamp: "2024-10-16T14:45:57.507+00:00"
+    },
+    {
+        id: 3, path: "/products", duration: 0.50728,
+        timestamp: "2024-10-16T14:45:57.507+00:00"
+    },
+    {
+        id: 4, path: "/products", duration: 0.2078,
+        timestamp: "2024-10-16T14:45:57.507+00:00"
+    },
+    {
+        id: 5, path: "/products", duration: 0.27338,
+        timestamp: "2024-10-16T14:45:57.507+00:00"
+    },
 ]
 
 export const ReportTest = () => {
@@ -43,9 +60,9 @@ export const ReportTest = () => {
     }
 
     const filteredData = data.filter(row =>
-        row.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        row.speed.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        row.category.toLowerCase().includes(searchTerm.toLowerCase())
+        row.path.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        row.duration.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        row.timestamp.toLowerCase().includes(searchTerm.toLowerCase())
     )
 
     const generatePDF = () => {
@@ -59,10 +76,10 @@ export const ReportTest = () => {
 
         const tableData = filteredData
             .filter(row => selectedRows.includes(row.id))
-            .map(row => [row.id.toString(), row.name, row.speed, row.category])
+            .map(row => [row.id.toString(), row.path, row.duration, row.timestamp])
 
         autoTable(doc, {
-            head: [['No.', 'Function Name', 'Time Complexity', 'Category']],
+            head: [['No.', 'Endpoint Path', 'Time Duration Speed', 'Date']],
             body: tableData,
             startY: 60,
             styles: {
@@ -122,7 +139,7 @@ export const ReportTest = () => {
     }
 
     return (
-        <div className="container mx-auto p-4">
+        <div className="container mx-auto pt-20">
             <h1 className="text-3xl font-bold mb-6">Report Speed Test Functionality</h1>
 
             <div className="flex justify-between items-center mb-4">
@@ -216,9 +233,9 @@ export const ReportTest = () => {
                                     />
                                 </TableCell>
                                 <TableCell>{row.id}</TableCell>
-                                <TableCell className="font-medium">{row.name}</TableCell>
-                                <TableCell>{row.speed}</TableCell>
-                                <TableCell>{row.category}</TableCell>
+                                <TableCell className="font-medium">{row.path}</TableCell>
+                                <TableCell>{row.duration}</TableCell>
+                                <TableCell>{formatTimestamp(row.timestamp)}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>

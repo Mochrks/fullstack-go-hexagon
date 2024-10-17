@@ -7,7 +7,7 @@ import (
     "go.mongodb.org/mongo-driver/mongo" 
 )
 
-// RegisterProductRoutes registers product-related routes.
+// RegisterProductRoutes
 func RegisterProductRoutes(r *gin.Engine, service *application.ProductService, mongoClient *mongo.Client) {
     handler := NewProductHandler(service)
 

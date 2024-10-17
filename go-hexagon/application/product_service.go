@@ -8,7 +8,7 @@ type ProductService struct {
     repo domain.ProductRepository
 }
 
-// NewProductService creates a new instance of ProductService.
+// instance
 func NewProductService(repo domain.ProductRepository) *ProductService {
     return &ProductService{repo: repo}
 }

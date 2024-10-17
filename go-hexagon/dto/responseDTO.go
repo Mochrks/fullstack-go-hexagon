@@ -7,7 +7,7 @@ type ResponseDTO struct {
     Message    string      `json:"message"`
 }
 
-// SuccessResponse generates a success response.
+// SuccessResponse 
 func SuccessResponse(data interface{}, message string) ResponseDTO {
     return ResponseDTO{
         Data:       data,
@@ -17,7 +17,7 @@ func SuccessResponse(data interface{}, message string) ResponseDTO {
     }
 }
 
-// ErrorResponse generates an error response.
+// ErrorResponse
 func ErrorResponse(message string, statusCode int) ResponseDTO {
     return ResponseDTO{
         Data:       nil,

@@ -10,11 +10,11 @@ import (
     "github.com/gin-gonic/gin"
 )
 
-// Initialize MongoDB connection for middleware
+// Initial mongodb
 var mongoCollection *mongo.Collection
 
 func InitializeMongoDB(uri, dbName string) (*mongo.Client, error) {
-    // Set MongoDB client options
+  
     clientOptions := options.Client().ApplyURI(uri)
 
     // Connect to MongoDB
