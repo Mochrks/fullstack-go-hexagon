@@ -27,7 +27,7 @@ func main() {
     mongoURI := cfg.MongoURI
     mongoDBName := cfg.MongoDBName
 
-    // Memanggil fungsi InitializeMongoDB dari package db
+    // Init mongo
     mongoClient, err := middleware.InitializeMongoDB(mongoURI, mongoDBName)
     if err != nil {
         log.Fatalf("Failed to initialize MongoDB: %v", err)
@@ -48,23 +48,22 @@ func main() {
 
     // Set up Gin router
     r := gin.Default()
-
-    r.GET("/execution-logs", executionLogHandler.GetAllExecutionLogs)
-
-    // Register product routes with mongoClient
-    routes.RegisterProductRoutes(r, productService, mongoClient)
-
+    
     // Setup CORS middleware
-    config := cors.Config{
-        AllowOrigins:     []string{"http://localhost:5173"},
-        AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
-        AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+    r.Use(cors.New(cors.Config{
+        AllowOrigins:     []string{"http://localhost:5173"}, 
+        AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"}, 
+        AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"}, 
         ExposeHeaders:    []string{"Content-Length"},
         AllowCredentials: true,
         MaxAge:           12 * time.Hour,
-    }
+    }))
 
-    r.Use(cors.New(config))
+    // Api for get data mongo
+    r.GET("/execution-logs", executionLogHandler.GetAllExecutionLogs)
+    
+    // Register product routes with mongoClient
+    routes.RegisterProductRoutes(r, productService, mongoClient)
 
     // Start the server
     address := cfg.ServerAddress + ":" + cfg.ServerPort

@@ -37,7 +37,7 @@ export const createProducts = async (productsData: { name: string; description: 
  
     productsData.rating = parseFloat(productsData.rating.toString());
     
-    const response = await axiosInstance.post('/Products', productsData);
+    const response = await axiosInstance.post('/products', productsData);
     return response.data;
   } catch (error) {
     console.error('Error creating products', error);
@@ -46,13 +46,13 @@ export const createProducts = async (productsData: { name: string; description: 
 };
 
 
-
 export const updateProducts = async (
   productsId: number,
   productsData: { name: string; description: string; stock: number; rating:number; price:number}
 ) => {
   try {
-    const response = await axiosInstance.put(`/Products/${productsId}`, productsData);
+     productsData.rating = parseFloat(productsData.rating.toString());
+    const response = await axiosInstance.put(`/products/${productsId}`, productsData);
     return response.data;
   } catch (error) {
     console.error('Error updating products', error);

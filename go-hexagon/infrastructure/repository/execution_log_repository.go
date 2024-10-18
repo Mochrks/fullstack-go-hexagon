@@ -2,7 +2,7 @@ package repository
 
 import (
     "context"
-    "go-hexagon/domain"
+    "go-hexagon/domain/models"
     "go.mongodb.org/mongo-driver/bson"
     "go.mongodb.org/mongo-driver/mongo"
     "log"
@@ -22,8 +22,8 @@ func NewExecutionLogRepository(client *mongo.Client, database, collection string
     }
 }
 
-func (r *ExecutionLogRepository) GetAll() ([]domain.ExecutionLog, error) {
-    var logs []domain.ExecutionLog
+func (r *ExecutionLogRepository) GetAll() ([]models.ExecutionLog, error) {
+    var logs []models.ExecutionLog
     collection := r.client.Database(r.database).Collection(r.collection)
 
     cursor, err := collection.Find(context.TODO(), bson.D{})
@@ -34,7 +34,7 @@ func (r *ExecutionLogRepository) GetAll() ([]domain.ExecutionLog, error) {
     defer cursor.Close(context.TODO())
 
     for cursor.Next(context.TODO()) {
-        var logEntry domain.ExecutionLog
+        var logEntry models.ExecutionLog
         if err := cursor.Decode(&logEntry); err != nil {
             log.Printf("Error decoding execution log: %v", err)
             return nil, err

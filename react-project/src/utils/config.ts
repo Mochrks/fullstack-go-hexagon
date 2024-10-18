@@ -8,8 +8,8 @@ export const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    // console.log('Request Interceptor', config);
-    console.log('Request Interceptor run ');
+    console.log('Request Interceptor', config);
+    // console.log('Request Interceptor run ');
     return config;
   },
   (error) => {
@@ -19,15 +19,21 @@ axiosInstance.interceptors.request.use(
 
 axiosInstance.interceptors.response.use(
   (response) => {
-    // console.log('Response Interceptor', response);
     console.log('Response Interceptor');
     return response;
   },
   (error) => {
-    console.log('Error Interceptor', error.response);
+    if (error.response) {
+      console.log('Error Interceptor', error.response);
+    } else if (error.request) {
+      console.log('Error Request', error.request);
+    } else {
+      console.log('Error Message', error.message);
+    }
     return Promise.reject(error);
   }
 );
+
 
 
 

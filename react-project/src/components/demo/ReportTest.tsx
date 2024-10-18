@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -10,46 +10,55 @@ import { jsPDF } from "jspdf"
 import autoTable from 'jspdf-autotable'
 import { Search, FileDown, Settings } from 'lucide-react'
 import { formatTimestamp } from '@/utils/format-date'
+import { getSpeed } from '@/service/log-speed'
 
-interface FunctionData {
-    id: number
+
+interface Data {
+    id: string
     path: string
     duration: number
+    method: string
     timestamp: string
 }
 
-
-const initialData: FunctionData[] = [
-    {
-        id: 1, path: "/products", duration: 0.5078,
-        timestamp: "2024-10-16T14:45:57.507+00:00"
-    },
-    {
-        id: 2, path: "/products", duration: 0.6078,
-        timestamp: "2024-10-16T14:45:57.507+00:00"
-    },
-    {
-        id: 3, path: "/products", duration: 0.50728,
-        timestamp: "2024-10-16T14:45:57.507+00:00"
-    },
-    {
-        id: 4, path: "/products", duration: 0.2078,
-        timestamp: "2024-10-16T14:45:57.507+00:00"
-    },
-    {
-        id: 5, path: "/products", duration: 0.27338,
-        timestamp: "2024-10-16T14:45:57.507+00:00"
-    },
-]
-
 export const ReportTest = () => {
-    const [data, setData] = useState<FunctionData[]>(initialData)
-    const [selectedRows, setSelectedRows] = useState<number[]>([])
+    const [data, setData] = useState<Data[]>([])
+    const [selectedRows, setSelectedRows] = useState<string[]>([])
     const [searchTerm, setSearchTerm] = useState('')
     const [pdfTitle, setPdfTitle] = useState('Function Data')
     const [pdfOrientation, setPdfOrientation] = useState<'portrait' | 'landscape'>('portrait')
+    const [currentPage, setCurrentPage] = useState(1)
+    const [rowsPerPage] = useState(10)
 
-    const handleRowSelect = (id: number) => {
+    // Fetch data dari API
+    useEffect(() => {
+        fetchData()
+    }, [])
+
+    const fetchData = async () => {
+        try {
+            const response = await getSpeed()
+            console.log("API response:", response)
+
+            if (Array.isArray(response.data)) {
+                const transformedData = response.data.map((item: any) => ({
+                    id: item.ID,
+                    path: item.Path,
+                    duration: item.Duration,
+                    method: item.Method,
+                    timestamp: item.Timestamp
+                }))
+                setData(transformedData)
+            } else {
+                console.error("Data is not array:", response.data)
+            }
+        } catch (error) {
+            console.error("Error fetching speed data:", error)
+        }
+    }
+
+
+    const handleRowSelect = (id: string) => {
         setSelectedRows(prev =>
             prev.includes(id) ? prev.filter(rowId => rowId !== id) : [...prev, id]
         )
@@ -61,7 +70,7 @@ export const ReportTest = () => {
 
     const filteredData = data.filter(row =>
         row.path.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        row.duration.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        row.duration.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
         row.timestamp.toLowerCase().includes(searchTerm.toLowerCase())
     )
 
@@ -76,10 +85,16 @@ export const ReportTest = () => {
 
         const tableData = filteredData
             .filter(row => selectedRows.includes(row.id))
-            .map(row => [row.id.toString(), row.path, row.duration, row.timestamp])
+            .map((row, index) => [
+                index + 1,
+                row.path,
+                row.duration,
+                row.method,
+                formatTimestamp(row.timestamp)
+            ])
 
         autoTable(doc, {
-            head: [['No.', 'Endpoint Path', 'Time Duration Speed', 'Date']],
+            head: [['No.', 'Endpoint Path', 'Time Duration Speed', 'Method', 'Date']],
             body: tableData,
             startY: 60,
             styles: {
@@ -107,36 +122,28 @@ export const ReportTest = () => {
                 2: { cellWidth: 100, halign: 'center' },
                 3: { cellWidth: 80, halign: 'center' },
             },
-            didParseCell: function (data) {
-                const col = data.column.index;
-                if (col === 1 && data.row.section === 'body') {
-                    data.cell.styles.fontStyle = 'bold';
-                }
-                if (col === 2 && data.row.section === 'body') {
-                    data.cell.styles.textColor = [231, 76, 60];
-                }
-            },
-            didDrawCell: function (data) {
-                if (data.row.section === 'body') {
-                    const col = data.column.index;
-                    const row = data.row.index;
-                    const width = data.cell.width;
-                    const height = data.cell.height;
-                    if (col === 3) {
-                        doc.setFillColor(52, 152, 219);
-                        doc.rect(data.cell.x + 2, data.cell.y + 2, width - 4, height - 4, 'F');
-                        doc.setTextColor(255);
-                        doc.text(data.cell.text, data.cell.x + width / 2, data.cell.y + height / 2, {
-                            align: 'center',
-                            baseline: 'middle'
-                        });
-                    }
-                }
-            },
         })
 
         doc.save('function_data.pdf')
     }
+
+    const handleNextPage = () => {
+        if (currentPage < Math.ceil(filteredData.length / rowsPerPage)) {
+            setCurrentPage(currentPage + 1)
+        }
+    }
+
+    const handlePreviousPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1)
+        }
+    }
+
+    // current page
+    const paginatedData = filteredData.slice(
+        (currentPage - 1) * rowsPerPage,
+        currentPage * rowsPerPage
+    )
 
     return (
         <div className="container mx-auto pt-20">
@@ -165,33 +172,27 @@ export const ReportTest = () => {
                         <DialogTrigger asChild>
                             <Button variant="outline"><Settings className="mr-2 h-4 w-4" /> PDF Settings</Button>
                         </DialogTrigger>
-                        <DialogContent>
+                        <DialogContent className="sm:max-w-[425px]">
                             <DialogHeader>
-                                <DialogTitle>PDF Export Settings</DialogTitle>
-
+                                <DialogTitle>PDF Settings</DialogTitle>
                             </DialogHeader>
                             <div className="grid gap-4 py-4">
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="pdfTitle" className="text-right">
-                                        Title
-                                    </Label>
+                                <div className="space-y-2">
+                                    <Label htmlFor="pdfTitle">Title</Label>
                                     <Input
                                         id="pdfTitle"
                                         value={pdfTitle}
                                         onChange={(e) => setPdfTitle(e.target.value)}
-                                        className="col-span-3"
                                     />
                                 </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="pdfOrientation" className="text-right">
-                                        Orientation
-                                    </Label>
+                                <div className="space-y-2">
+                                    <Label htmlFor="pdfOrientation">Orientation</Label>
                                     <Select
                                         onValueChange={(value: 'portrait' | 'landscape') => setPdfOrientation(value)}
                                         defaultValue={pdfOrientation}
                                     >
-                                        <SelectTrigger className="col-span-3">
-                                            <SelectValue placeholder="Select orientation" />
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select Orientation" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="portrait">Portrait</SelectItem>
@@ -203,45 +204,62 @@ export const ReportTest = () => {
                         </DialogContent>
                     </Dialog>
                 </div>
-
-
             </div>
 
-            <div className="bg-white shadow-md rounded-lg overflow-hidden">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="w-[50px]">
+            <Table>
+                <TableHeader>
+                    <TableRow className='bg-gray-200 hover:bg-gray-300'>
+                        <TableHead className="w-[40px]">
+                            <Checkbox
+                                checked={selectedRows.length === filteredData.length}
+                                onCheckedChange={handleSelectAll}
+                            />
+                        </TableHead>
+                        <TableHead>No.</TableHead>
+                        <TableHead>Endpoint Path</TableHead>
+                        <TableHead >Method</TableHead>
+                        <TableHead>Time Duration Speed</TableHead>
+                        <TableHead>Date</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {paginatedData.map((row, index) => (
+                        <TableRow key={row.id} className="hover:bg-gray-50">
+                            <TableCell>
                                 <Checkbox
-                                    checked={selectedRows.length === filteredData.length}
-                                    onCheckedChange={handleSelectAll}
+                                    checked={selectedRows.includes(row.id)}
+                                    onCheckedChange={() => handleRowSelect(row.id)}
                                 />
-                            </TableHead>
-                            <TableHead>No.</TableHead>
-                            <TableHead>Function Name</TableHead>
-                            <TableHead>Time Complexity</TableHead>
-                            <TableHead>Category</TableHead>
+                            </TableCell>
+                            <TableCell>{(currentPage - 1) * rowsPerPage + index + 1}</TableCell> {/* Menyesuaikan penomoran dengan halaman */}
+                            <TableCell className="font-medium">{row.path}</TableCell>
+                            <TableCell>{row.method}</TableCell>
+                            <TableCell>{row.duration}</TableCell>
+                            <TableCell>{formatTimestamp(row.timestamp)}</TableCell>
                         </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {filteredData.map((row) => (
-                            <TableRow key={row.id} className="hover:bg-gray-50">
-                                <TableCell>
-                                    <Checkbox
-                                        checked={selectedRows.includes(row.id)}
-                                        onCheckedChange={() => handleRowSelect(row.id)}
-                                    />
-                                </TableCell>
-                                <TableCell>{row.id}</TableCell>
-                                <TableCell className="font-medium">{row.path}</TableCell>
-                                <TableCell>{row.duration}</TableCell>
-                                <TableCell>{formatTimestamp(row.timestamp)}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </div>
+                    ))}
+                </TableBody>
+            </Table>
 
+            <div className="flex justify-between items-center mt-4">
+                <Button
+                    onClick={handlePreviousPage}
+                    disabled={currentPage === 1}
+                    variant="outline"
+                >
+                    Previous
+                </Button>
+                <span>
+                    Page {currentPage} of {Math.ceil(filteredData.length / rowsPerPage)}
+                </span>
+                <Button
+                    onClick={handleNextPage}
+                    disabled={currentPage === Math.ceil(filteredData.length / rowsPerPage)}
+                    variant="outline"
+                >
+                    Next
+                </Button>
+            </div>
         </div>
     )
 }

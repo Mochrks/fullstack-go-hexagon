@@ -2,7 +2,7 @@ package http
 
 import (
     "go-hexagon/application"
-    "go-hexagon/domain" 
+    "go-hexagon/domain/models" 
     "go-hexagon/dto" 
     "net/http"
     "strconv"
@@ -35,7 +35,7 @@ func (h *ProductHandler) GetAllProducts(c *gin.Context) {
 
 // CreateProduct 
 func (h *ProductHandler) CreateProduct(c *gin.Context) {
-    var product domain.Product
+    var product models.Product
     if err := c.ShouldBindJSON(&product); err != nil {
         response := dto.ErrorResponse("Invalid input", http.StatusBadRequest)
         c.JSON(http.StatusBadRequest, response)
@@ -97,7 +97,7 @@ func (h *ProductHandler) UpdateProduct(c *gin.Context) {
         return
     }
 
-    var product domain.Product
+    var product models.Product
     if err := c.ShouldBindJSON(&product); err != nil {
         response := dto.ErrorResponse("Invalid input", http.StatusBadRequest)
         c.JSON(http.StatusBadRequest, response)
