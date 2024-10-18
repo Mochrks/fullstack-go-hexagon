@@ -62,7 +62,7 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 // GetProduct 
 func (h *ProductHandler) GetProduct(c *gin.Context) {
     id := c.Param("id")
-    intID, err := strconv.Atoi(id) // Convert string id to int
+    intID, err := strconv.Atoi(id) 
     if err != nil {
         response := dto.ErrorResponse("Invalid product ID", http.StatusBadRequest)
         c.JSON(http.StatusBadRequest, response)
@@ -119,7 +119,7 @@ func (h *ProductHandler) UpdateProduct(c *gin.Context) {
 // Delete products
 func (h *ProductHandler) DeleteProduct(c *gin.Context) {
     id := c.Param("id")
-    intID, err := strconv.Atoi(id) // Convert string id to int
+    intID, err := strconv.Atoi(id) 
     if err != nil {
         response := dto.ErrorResponse("Invalid product ID", http.StatusBadRequest)
         c.JSON(http.StatusBadRequest, response)
@@ -133,7 +133,6 @@ func (h *ProductHandler) DeleteProduct(c *gin.Context) {
         return
     }
 
-    // Melakukan penghapusan pada produk yang sudah ada
     if err := h.service.Delete(intID); err != nil {
         response := dto.ErrorResponse("Failed to delete product", http.StatusInternalServerError)
         c.JSON(http.StatusInternalServerError, response)

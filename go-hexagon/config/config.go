@@ -19,7 +19,6 @@ type Config struct {
 }
 
 func LoadConfig() *Config {
-    // Load .env file
     if err := godotenv.Load(); err != nil {
         log.Fatalf("Error loading .env file")
     }

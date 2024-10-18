@@ -23,7 +23,6 @@ func InitializeMongoDB(uri, dbName string) (*mongo.Client, error) {
         return nil, err
     }
 
-    // Check the connection
     err = client.Ping(context.TODO(), nil)
     if err != nil {
         return nil, err

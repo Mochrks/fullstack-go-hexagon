@@ -9,7 +9,7 @@ import (
 
 var dbInstance *gorm.DB
 
-// init postgreesql
+// init postgresql
 func InitDB(cfg *config.Config) (*gorm.DB, error) {
     var err error
     dsn := "host=" + cfg.DBHost + " user=" + cfg.DBUser + " password=" + cfg.DBPassword + " dbname=" + cfg.DBName + " port=" + cfg.DBPort + " sslmode=disable"

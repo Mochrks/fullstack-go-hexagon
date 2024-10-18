@@ -8,11 +8,11 @@ import (
     "go.mongodb.org/mongo-driver/mongo" 
 )
 
-// RegisterProductRoutes
+// routes api
 func RegisterProductRoutes(r *gin.Engine, service *application.ProductService, mongoClient *mongo.Client) {
     handler := http.NewProductHandler(service)
 
-    // Apply LoggingMiddleware with mongoClient
+    // Apply LoggingMiddleware 
     r.Use(middleware.LoggingMiddleware(mongoClient))
 
     r.GET("/products", handler.GetAllProducts)

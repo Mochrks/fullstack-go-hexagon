@@ -14,26 +14,26 @@ func NewProductService(repo interfaces.ProductRepository) *ProductService {
     return &ProductService{repo: repo}
 }
 
-// Create creates a new product.
+// Create product.
 func (s *ProductService) Create(product models.Product) error {
     return s.repo.Create(product)
 }
 
-// GetAll retrieves all products.
+// GetAll  products.
 func (s *ProductService) GetAll() ([]models.Product, error) {
     return s.repo.GetAll()
 }
 
-// GetByID retrieves a product by its ID.
+// GetByID products
 func (s *ProductService) GetByID(id int) (models.Product, error) {
     return s.repo.GetByID(id) 
-
-// Update modifies an existing product.
+}
+// Update product.
 func (s *ProductService) Update(id int, product models.Product) error {
     return s.repo.Update(id, product) 
 }
 
-// Delete removes a product.
+// Delete  product.
 func (s *ProductService) Delete(id int) error {
     return s.repo.Delete(id) 
 }

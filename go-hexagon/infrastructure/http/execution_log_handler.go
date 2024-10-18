@@ -1,4 +1,3 @@
-// infrastructure/http/execution_log_handler.go
 package http
 
 import (
@@ -21,7 +20,7 @@ func NewExecutionLogHandler(service *application.ExecutionLogService) *Execution
 func (h *ExecutionLogHandler) GetAllExecutionLogs(c *gin.Context) {
     logs, err := h.service.GetAll()
     if err != nil {
-        // Log detail error untuk debug
+       
         log.Printf("Error retrieving execution logs: %v", err)
 
         response := dto.ErrorResponse("Failed to retrieve execution logs", http.StatusInternalServerError)

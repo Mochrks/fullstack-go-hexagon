@@ -15,15 +15,15 @@ import (
 )
 
 func main() {
-    // Load configuration
+
     cfg := config.LoadConfig()
 
-    // Initialize PostgreSQL database
+    // Initialize PostgreSQL 
     dbInstance, err := db.InitDB(cfg)
     if err != nil {
         log.Fatalf("Failed to initialize PostgreSQL database: %v", err)
     }
-    // Initialize MongoDB for logging middleware
+    // Initialize MongoDB 
     mongoURI := cfg.MongoURI
     mongoDBName := cfg.MongoDBName
 
@@ -33,9 +33,8 @@ func main() {
         log.Fatalf("Failed to initialize MongoDB: %v", err)
     }
 
-    // Initialize product repository with the PostgreSQL database instance
+    // Initialize product repository
     productRepo := repository.NewProductGorm(dbInstance)
-
     // Initialize product service
     productService := application.NewProductService(productRepo)
 
@@ -46,10 +45,10 @@ func main() {
     // Initialize ExecutionLog handler
     executionLogHandler := http.NewExecutionLogHandler(executionLogService)
 
-    // Set up Gin router
+
     r := gin.Default()
     
-    // Setup CORS middleware
+    // CORS
     r.Use(cors.New(cors.Config{
         AllowOrigins:     []string{"http://localhost:5173"}, 
         AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"}, 
@@ -62,10 +61,9 @@ func main() {
     // Api for get data mongo
     r.GET("/execution-logs", executionLogHandler.GetAllExecutionLogs)
     
-    // Register product routes with mongoClient
+
     routes.RegisterProductRoutes(r, productService, mongoClient)
 
-    // Start the server
     address := cfg.ServerAddress + ":" + cfg.ServerPort
     if err := r.Run(address); err != nil {
         log.Fatalf("Failed to run server: %v", err)
