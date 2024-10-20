@@ -42,7 +42,7 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
         return
     }
 
-    if product.ProductName == "" || product.Stock <= 0 || product.Rating < 0 {
+    if product.ProductName == "" || product.Stock <= 0  {
         response := dto.ErrorResponse("Product name, stock, and rating must be provided", http.StatusBadRequest)
         c.JSON(http.StatusBadRequest, response)
         return

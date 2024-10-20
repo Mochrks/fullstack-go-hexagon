@@ -1,9 +1,11 @@
 import { Alert } from '@/components/demo/Alert';
 import { ConfirmDialog } from '@/components/demo/ConfirmDialog';
 import { DataTable } from '@/components/demo/DataTable'
+import { DialogDetail } from '@/components/demo/DetailDialog';
 import { DialogModal } from '@/components/demo/DialogModal';
 import { ReportTest } from '@/components/demo/ReportTest'
 import { createProducts, deleteProducts, getProducts, updateProducts } from '@/service/product-service';
+import { formatDateForInput } from '@/utils/format-date';
 import { Eye, Pencil, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -19,7 +21,7 @@ interface Products {
 }
 
 export const Dashboard = () => {
-
+    const [isDialogDetailOpen, setIsDialogDetailOpen] = useState(false)
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
     const [isDialogModalOpen, setIsDialogModalOpen] = useState(false)
     const [loading, setLoading] = useState(true)
@@ -43,7 +45,6 @@ export const Dashboard = () => {
     const fields = [
         { id: 'name', label: 'Name', type: 'text' as const },
         { id: 'description', label: 'Description', type: 'text' as const },
-        { id: 'rating', label: 'Rating', type: 'number' as const },
         { id: 'stock', label: 'Stock', type: 'number' as const },
         { id: 'price', label: 'Price', type: 'number' as const },
         { id: 'date', label: 'Date', type: 'date' as const },
@@ -52,7 +53,6 @@ export const Dashboard = () => {
     const columns = [
         { key: 'name', header: 'Product Name', sortable: true },
         { key: 'description', header: 'Description', sortable: true },
-        { key: 'rating', header: 'Rating', sortable: true },
         { key: 'stock', header: 'Stock', sortable: true },
         { key: 'price', header: 'Price', sortable: true },
         { key: 'date', header: 'Date', sortable: true },
@@ -62,7 +62,7 @@ export const Dashboard = () => {
         {
             onClick: (row: Products) => {
                 setSelectedProductId(row.product_id)
-                setIsConfirmModalOpen(true)
+                setIsDialogDetailOpen(true)
             },
             icon: <Eye className='w-5 h-5 text-white' />,
             className: 'bg-gray-600 hover:bg-gray-800'
@@ -113,7 +113,8 @@ export const Dashboard = () => {
                 description: formData.description,
                 stock: parseInt(formData.stock, 10),
                 rating: parseFloat(formData.rating),
-                price: parseFloat(formData.price)
+                price: parseFloat(formData.price),
+                date: formData.date
             }
             let response;
 
@@ -183,6 +184,13 @@ export const Dashboard = () => {
                 </div>
             </main>
 
+            {/* dialog Detail */}
+            <DialogDetail
+                setIsDialogDetailOpen={setIsDialogDetailOpen}
+                isDialogDetailOpen={isDialogDetailOpen}
+                selectedProductId={selectedProductId}
+            />
+
             {/* delete */}
             <ConfirmDialog
                 setIsConfirmModalOpen={setIsConfirmModalOpen}
@@ -199,7 +207,7 @@ export const Dashboard = () => {
                 fields={fields}
                 onSubmit={handleSubmit}
                 submitButtonText={editingProducts ? "Update Products" : "Add Products"}
-                initialData={editingProducts || {}}
+                initialData={editingProducts ? { ...editingProducts, date: formatDateForInput(editingProducts.date) } : {}}
             />
 
             {alertMessage && (
